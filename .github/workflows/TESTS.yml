@@ -1,0 +1,36 @@
+name: CI/CD Pipeline for Django with Docker
+
+on:
+  push:
+    branches:
+      - main  # Déclenche le workflow sur les pushes vers la branche main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker Image
+        run: |
+          docker-compose build  # Construire l'image Docker
+
+      - name: Log in to Docker Hub
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # Nom d'utilisateur Docker Hub
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  # Mot de passe Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Push Docker Image
+        run: |
+          docker-compose push  # Pousser l'image vers Docker Hub
+
+      - name: Deploy
+        run: |
+          echo "Déploiement ici"  # Remplacez par votre commande de déploiement
